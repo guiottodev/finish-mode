@@ -1,0 +1,12 @@
+blank_issues_enabled: false
+name: Issue
+description: Escolha o tipo de issue
+title: "[Tipo] "
+
+templates:
+  - name: "Feature"
+    description: Propor nova funcionalidade
+    file: feature.md
+  - name: "Bug"
+    description: Reportar um bug
+    file: bug.md
