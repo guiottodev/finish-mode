@@ -28,6 +28,13 @@
 
 ---
 
+## Critérios de engenharia (prioridade v1)
+
+- **Motor de regras (domínio) testável e independente da UI:** transições de missão (ativa/bloqueada/pausa/closed), transições do Run (start → ciclo → done → debrief), contadores (swap/split), cálculo de próxima ação e de DoD mínimo atingido devem estar no domínio e testáveis sem UI.
+- **Prioridade:** domínio + testes do domínio antes de polir UI; não começar pela UI bonita.
+
+---
+
 ## Referências
 
 - Issues devem alinhar ao **PRD** (§19 para critérios de “feito” do v1).

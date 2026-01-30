@@ -42,10 +42,16 @@ Referências:
 - No primeiro uso (em HTTPS), o app chama `navigator.storage.persist()` e registra o resultado.
 - Se `persist()` retornar `false`, o app deve tratar como “risco de perda” e recomendar backup (export/import) quando disponível.
 - **COULD v1:** export/import JSON cedo, caso `persist()` negue ou para válvula de backup.
+- Quota/eviction (Safari e outros) documentados como risco; export/import priorizado como válvula de confiança.
 
 *(ADR como “decision log” existe para impedir redecidir isso toda semana.)*
 
 ---
+
+### PWA v1
+
+- Manifest correto + HTTPS + ícones + service worker (Chromium como alvo mínimo).
+- Estratégia offline v1: app shell + dados já carregados em memória; ou "funciona offline após primeira carga" (definir exatamente no implementar).
 
 ## Consequências
 

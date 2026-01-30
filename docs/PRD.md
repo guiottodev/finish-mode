@@ -15,6 +15,7 @@ Incluído/clarificado no v1.0:
 - Escopo v1 de templates (sequência fixa) e persistência/offline
 - Ajustes no modelo de dados (remover/definir campos ambíguos)
 - Preset 12–3–12 explicado; regra estMinutes ≤ 5 na faixa Frágil; definição de run completion rate; formato de checklist do DoD
+- Proteção contra lista/backlog/customização (§0); Compromisso mínimo usado pelo sistema (§3.5); Válvulas de escape (§3.7); timer = preset com fases e prompts (§10); risco quota/eviction e prioridade export/import (§17)
 
 ---
 
@@ -23,6 +24,8 @@ Incluído/clarificado no v1.0:
 Finish Mode é um copiloto de execução para terminar coisas já iniciadas, especialmente na fase de acabamento: polir, revisar, documentar, fechar pontas e entregar.
 
 **Não é:** planner, backlog, gerenciador de projetos, app de ideias, ferramenta colaborativa.
+
+O produto protege-se contra: lista completa de tarefas, tela de backlog e customização excessiva (visibilidade mínima é princípio).
 
 ---
 
@@ -66,7 +69,7 @@ Só existe 1 missão não-encerrada no sistema. Estados:
 - **Pausa curta** (pausa do trabalho; não habilita outra missão)
 - **Encerrada**
 
-**Regra v1:** Pausa curta não permite iniciar outra missão. Para “mudar de tema”, o usuário precisa encerrar a missão atual ou marcá-la como bloqueada (com motivo real).
+**Regra v1:** Pausa curta não permite iniciar outra missão. Bloquear também não libera outra missão; é só para dependência externa. Para mudar de tema, o usuário precisa encerrar a missão atual.
 
 ### 3.4 Execução > planejamento
 
@@ -78,11 +81,17 @@ Antes da missão ficar ativa:
 
 *“Qual é o menor resultado que você aceita entregar?”*
 
-Isso vira o Compromisso Mínimo e ancora o DoD mínimo.
+Isso vira o Compromisso Mínimo e ancora o DoD mínimo. O Compromisso mínimo é campo obrigatório e **usado pelo sistema**: ex. exibido no Debrief quando o usuário tenta subir o padrão no meio (reforço do mínimo aceitável).
 
 ### 3.6 Nenhuma micro-ação sem artefato (obrigatório)
 
 Toda micro-ação precisa declarar o artefato: *“o que vai existir no mundo quando terminar?”*.
+
+### 3.7 Válvulas de escape (rigidez sem prisão)
+
+- **Bloquear:** saída legítima (motivo + ação de desbloqueio); missão fica bloqueada até o usuário executar a ação e marcar "Desbloqueei".
+- **Pausa curta:** "não hoje"; não abre outra missão; para mudar de tema é preciso encerrar.
+- **Reabrir com fricção:** 1 frase "por que reabrir?" + micro-ação mínima de retorno = proteção contra culpa/perfeccionismo, não punição.
 
 ---
 
@@ -115,6 +124,7 @@ Toda micro-ação precisa declarar o artefato: *“o que vai existir no mundo qu
 - microActions[] (fila ordenada)
 - status (ativa / bloqueada / pausa / encerrada)
 - blockedReason + unblockAction (se bloqueada)
+- closedAt (se encerrada)
 - cooldownUntil (se encerrada)
 
 **Formato DoD:** dodMin, dodGood e dodPremium usam o mesmo formato de checklist: `[{ text: string, done: boolean }]` (equivalente à estrutura interna de um DoDLevel).
@@ -208,7 +218,7 @@ Uma micro-ação é “grande demais” quando:
 
 Run é um modo de foco com ritual fixo; o sistema faz prompts no fim do ciclo.
 
-**Decisão v1:** Timer fixo por preset (não só “tempo decorrido”).
+**Decisão v1:** Timer fixo por preset (não só “tempo decorrido”). O timer é **preset com fases** (focus1 → break → focus2) que **disparam prompts** ao fim de cada fase; não é apenas tempo decorrido.
 
 **Preset padrão (12–3–12):** 12 minutos de foco, 3 minutos de pausa, 12 minutos de foco (duas rodadas).
 
@@ -254,7 +264,7 @@ Ao fim de cada foco: prompt com 2 opções:
 
 - reduz opções visíveis (esconde “trocar” se existir)
 - destaca “Rascunho feio” e “Start Ridículo”
-- encurta próximo preset (ex.: 8–2–8) apenas para o próximo Run
+- (Fora do v1) encurtar o próximo preset (ex.: 8–2–8) como intervenção extra
 
 ---
 
@@ -276,7 +286,7 @@ Após 1 Run concluído em 7–10, o app sugere “recalibrar” (1 clique).
 
 ### 13.1 Capturar ideia
 
-Durante o Run: *“Capturar ideia”* salva em IdeaInbox (texto curto) e retorna imediatamente ao Run. Não vira micro-ação automaticamente.
+Durante o Run: *“Capturar ideia”* salva em IdeaInbox (texto curto, com `linkedMissionId` da missão atual quando existir) e retorna imediatamente ao Run. Não vira micro-ação automaticamente.
 
 ### 13.2 Quando a Inbox aparece
 
@@ -287,8 +297,10 @@ Durante o Run: *“Capturar ideia”* salva em IdeaInbox (texto curto) e retorna
 
 **Regra v1:**
 
-- Só é possível *“Promover”* uma ideia para nova missão quando a missão atual estiver **encerrada** ou **bloqueada**.
+- Só é possível *“Promover”* uma ideia quando **não existe missão não-encerrada** (ou seja, a missão atual está **encerrada**).
+- Se a missão estiver **bloqueada**, a promoção fica indisponível (a ideia permanece no Inbox).
 - Se promovida, o sistema cria uma missão nova com: outcome = ideia, compromisso mínimo pedido (5s), template escolhido.
+- Após promover, a ideia é **removida do Inbox**.
 - Isso preserva “uma missão” e evita inbox virar rota de fuga dentro da missão ativa.
 
 ---
@@ -304,8 +316,8 @@ Durante o Run: *“Capturar ideia”* salva em IdeaInbox (texto curto) e retorna
 ## 15) Encerramento e reabertura (cooldown)
 
 - Ao atingir DoD mínimo, o sistema pergunta: *“Encerrar (mínimo) agora?”* / *“Continuar para Bom”*.
-- Se encerrar: define **cooldownUntil = now + 24h**.
-- **Reabrir antes do cooldown:** exige 1 frase *“por que reabrir?”*; cria automaticamente uma micro-ação mínima de retorno (artefato obrigatório).
+- Se encerrar: define **closedAt = now** e **cooldownUntil = now + 24h**.
+- **Reabrir (antes ou depois do cooldown):** exige 1 frase *“por que reabrir?”*; cria automaticamente uma micro-ação mínima de retorno (artefato obrigatório).
 
 ---
 
@@ -327,7 +339,9 @@ Se a missão for encerrada:
 **Decisão v1:** local-first + offline (PWA).
 
 - Dados persistem no dispositivo (ex.: IndexedDB / local DB).
-- Export/import simples opcional (se quiser backup).
+- Quota/eviction (especialmente Safari) são tratados como **risco de produto**; mitigação: `navigator.storage.persist()` no primeiro uso + export/import com prioridade (cinto de segurança).
+- Export/import simples opcional (se quiser backup); priorizado como válvula quando `persist()` negar.
+- No v1, **import substitui** os dados locais (sem merge).
 - Sync multi-dispositivo fica **fora do v1** (explicitamente).
 
 ---

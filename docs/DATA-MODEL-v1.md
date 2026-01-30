@@ -33,6 +33,7 @@ Ref: [Dexie Version.stores](https://dexie.org/docs/Version/Version.stores()) / [
 | status | 'active' \| 'blocked' \| 'paused' \| 'closed' | ✅ | |
 | blockedReason | string | ❌ | se blocked |
 | unblockAction | string | ❌ | se blocked |
+| closedAt | number | ❌ | se closed |
 | cooldownUntil | number | ❌ | ms; usado ao fechar |
 | dodMin | ChecklistItem[] | ✅ | |
 | dodGood | ChecklistItem[] | ✅ | |
@@ -43,7 +44,7 @@ Ref: [Dexie Version.stores](https://dexie.org/docs/Version/Version.stores()) / [
 **Regras de domínio**
 
 - Se `status === 'blocked'`: `blockedReason` e `unblockAction` devem existir.
-- Se `status === 'closed'`: `cooldownUntil` pode existir (para reabrir com fricção).
+- Se `status === 'closed'`: `closedAt` deve existir; `cooldownUntil` deve existir (reabrir com fricção).
 
 ---
 
@@ -91,7 +92,7 @@ Ref: [Dexie Version.stores](https://dexie.org/docs/Version/Version.stores()) / [
 
 ### IdeaInbox
 
-**Descrição:** ideias capturadas durante o Run; promover só quando missão encerrada ou bloqueada.
+**Descrição:** ideias capturadas durante o Run; promover só quando **não existe missão não-encerrada** (missão encerrada).
 
 | Campo | Tipo | Obrigatório | Observações |
 |-------|------|-------------|-------------|
@@ -122,7 +123,7 @@ Proposta v1 — só o que será consultado:
 
 | Store | Schema (índices) |
 |-------|-------------------|
-| missions | `id, status, cooldownUntil, createdAt` |
+| missions | `id, status, closedAt, cooldownUntil, createdAt, [status+closedAt]` |
 | microActions | `id, missionId, [missionId+order], state, createdAt` |
 | runs | `id, missionId, startedAt, runPresetId` |
 | ideaInbox | `id, createdAt, linkedMissionId` |
@@ -134,5 +135,5 @@ Proposta v1 — só o que será consultado:
 
 - **Home:** carregar missão não-encerrada por `status` (active/blocked/paused).
 - **Próxima micro-ação:** primeira `microActions` com `missionId` e `state = 'todo'`, ordenada por `[missionId+order]`.
-- **Histórico:** últimas missions com `status = 'closed'` por `createdAt` ou `updatedAt`.
+- **Histórico:** últimas missions com `status = 'closed'` ordenadas por `closedAt` (usar índice `[status+closedAt]`).
 - **Inbox:** últimas ideias por `createdAt` (máx. 5).

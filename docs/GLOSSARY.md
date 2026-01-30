@@ -153,7 +153,7 @@
 
 ## Cooldown (reabertura com fricção)
 **Definição (v1.0):** Janela após encerrar uma missão (ex.: 24h) para evitar reabrir por culpa.  
-**Regra v1.0:** reabrir antes do cooldown exige 1 frase de motivo + gera micro-ação mínima.
+**Regra v1.0:** reabrir (antes ou depois do cooldown) exige 1 frase de motivo + gera micro-ação mínima.
 
 ---
 
@@ -165,7 +165,7 @@
 
 ## Inbox de ideias
 **Definição (v1.0):** Caixa de captura rápida (1 linha) para não interromper o Run.  
-**Regra v1.0:** ideia não vira micro-ação automaticamente; só pode ser promovida quando missão estiver encerrada/bloqueada.
+**Regra v1.0:** ideia não vira micro-ação automaticamente; só pode ser promovida quando missão estiver **encerrada** (se estiver bloqueada, promoção fica indisponível).
 
 ---
 
